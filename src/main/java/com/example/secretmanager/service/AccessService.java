@@ -21,26 +21,28 @@ public class AccessService {
     @Autowired
     SecretRepository secretRepository;
 
-    public void addAllowedSecret(AccessDTO accessDTO) {
+    public void addAllowedSecret(AccessDTO accessDTO) throws ChangeSetPersister.NotFoundException {
         Optional<Application> applicationData = applicationRepository.findById(accessDTO.getId());
         Optional<Secret> secretData = secretRepository.findById(accessDTO.getSecretId());
 
-        if (applicationData.isPresent() && secretData.isPresent()) {
-            Application application = applicationData.get();
-
-            ArrayList<String> allowedSecrets;
-            String newAllowedSecrets = "";
-
-            allowedSecrets = new ArrayList<>(Arrays.asList(application.getAllowedSecrets().split(",")));
-            allowedSecrets.add(accessDTO.getSecretId());
-
-            for (String secret : allowedSecrets) {
-                newAllowedSecrets += secret + ",";
-            }
-
-            application.setAllowedSecrets(newAllowedSecrets);
-
-            applicationRepository.save(application);
+        if(!applicationData.isPresent() || !secretData.isPresent()) {
+            throw new ChangeSetPersister.NotFoundException();
         }
+
+        Application application = applicationData.get();
+
+        ArrayList<String> allowedSecrets;
+        String newAllowedSecrets = "";
+
+        allowedSecrets = new ArrayList<>(Arrays.asList(application.getAllowedSecrets().split(",")));
+        allowedSecrets.add(accessDTO.getSecretId());
+
+        for (String secret : allowedSecrets) {
+            newAllowedSecrets += secret + ",";
+        }
+
+        application.setAllowedSecrets(newAllowedSecrets);
+
+        applicationRepository.save(application);
     }
 }
