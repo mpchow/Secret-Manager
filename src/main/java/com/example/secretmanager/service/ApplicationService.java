@@ -8,6 +8,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class ApplicationService {
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -16,10 +18,16 @@ public class ApplicationService {
     ApplicationRepository applicationRepository;
 
     public void newApplication(ApplicationDTO applicationDTO) {
-        Application application = new Application();
-        application.setId(applicationDTO.getId());
-
-        application.setSecretToken(passwordEncoder.encode(applicationDTO.getSecretToken()));
+        Optional<Application> applicationData = applicationRepository.findById(applicationDTO.getId());
+        Application application;
+        if (applicationData.isPresent()) {
+            application = applicationData.get();
+            application.setSecretToken(applicationDTO.getSecretToken());
+        } else {
+            application = new Application();
+            application.setId(applicationDTO.getId());
+            application.setSecretToken(passwordEncoder.encode(applicationDTO.getSecretToken()));
+        }
 
         applicationRepository.save(application);
     }

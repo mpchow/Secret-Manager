@@ -1,5 +1,7 @@
 package com.example.secretmanager.model;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
@@ -9,6 +11,8 @@ public class Application {
     private String id;
 
     private String secretToken;
+
+    private String allowedSecrets;
 
     public Application() {}
 
@@ -20,11 +24,19 @@ public class Application {
         this.secretToken = secretToken;
     }
 
+    public void setAllowedSecrets(String allowedSecrets) {
+        this.allowedSecrets = allowedSecrets;
+    }
+
     public String getId() {
         return id;
     }
 
     public String getSecretToken() {
         return secretToken;
+    }
+
+    public String getAllowedSecrets() {
+        return allowedSecrets;
     }
 }

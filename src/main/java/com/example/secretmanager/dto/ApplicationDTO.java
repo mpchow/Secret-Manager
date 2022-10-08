@@ -3,6 +3,7 @@ package com.example.secretmanager.dto;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.Id;
+import java.util.List;
 
 public class ApplicationDTO {
     @Id
