@@ -6,6 +6,7 @@ import com.example.secretmanager.model.Secret;
 import com.example.secretmanager.repository.ApplicationRepository;
 import com.example.secretmanager.repository.SecretRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class SecretService {
         secretRepository.save(secret);
     }
 
-    public String retrieveSecret(String id, String secretId) {
+    public String retrieveSecret(String id, String secretId) throws ChangeSetPersister.NotFoundException {
         Optional<Application> applicationData = applicationRepository.findById(id);
         if (applicationData.isPresent()) {
             Application application = applicationData.get();
@@ -44,6 +45,6 @@ public class SecretService {
                 }
             }
         }
-        return null;
+        throw new ChangeSetPersister.NotFoundException();
     }
 }

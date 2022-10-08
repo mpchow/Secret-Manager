@@ -20,6 +20,10 @@ public class Secret {
         this.secretVal = secretVal;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public String getSecretVal() {
         return secretVal;
     }

@@ -9,10 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 
 import static org.hamcrest.Matchers.emptyString;
@@ -95,7 +97,7 @@ public class SecretControllerTest {
     @Test
     public void testGetBadSecretId() throws Exception {
         when(applicationService.validCredential("user", "pass")).thenReturn(true);
-        when(secretService.retrieveSecret("user","secretId")).thenReturn(null);
+        when(secretService.retrieveSecret("user","secretId")).thenThrow(ChangeSetPersister.NotFoundException.class);
 
         mvc.perform(MockMvcRequestBuilders.get("/secret/secretId")
             .with(httpBasic("user", "pass"))

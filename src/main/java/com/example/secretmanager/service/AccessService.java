@@ -31,11 +31,10 @@ public class AccessService {
 
         Application application = applicationData.get();
 
-        ArrayList<String> allowedSecrets;
-        String newAllowedSecrets = "";
-
-        allowedSecrets = new ArrayList<>(Arrays.asList(application.getAllowedSecrets().split(",")));
+        ArrayList<String> allowedSecrets = new ArrayList<>(Arrays.asList(application.getAllowedSecrets().split(",")));
         allowedSecrets.add(accessDTO.getSecretId());
+
+        String newAllowedSecrets = "";
 
         for (String secret : allowedSecrets) {
             newAllowedSecrets += secret + ",";

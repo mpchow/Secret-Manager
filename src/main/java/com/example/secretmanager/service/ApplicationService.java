@@ -17,17 +17,16 @@ public class ApplicationService {
     @Autowired
     ApplicationRepository applicationRepository;
 
-    public void newApplication(ApplicationDTO applicationDTO) {
+    public void saveApplication(ApplicationDTO applicationDTO) {
         Optional<Application> applicationData = applicationRepository.findById(applicationDTO.getId());
         Application application;
         if (applicationData.isPresent()) {
             application = applicationData.get();
-            application.setSecretToken(applicationDTO.getSecretToken());
         } else {
             application = new Application();
             application.setId(applicationDTO.getId());
-            application.setSecretToken(passwordEncoder.encode(applicationDTO.getSecretToken()));
         }
+        application.setSecretToken(passwordEncoder.encode(applicationDTO.getSecretToken()));
 
         applicationRepository.save(application);
     }

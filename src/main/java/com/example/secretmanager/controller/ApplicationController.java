@@ -21,7 +21,7 @@ public class ApplicationController {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
 
-        applicationService.newApplication(applicationDTO);
+        applicationService.saveApplication(applicationDTO);
         return new ResponseEntity<>("Application created", HttpStatus.OK);
     }
 }

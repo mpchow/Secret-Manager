@@ -4,6 +4,7 @@ import com.example.secretmanager.dto.SecretDTO;
 import com.example.secretmanager.service.ApplicationService;
 import com.example.secretmanager.service.SecretService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,16 +30,13 @@ public class SecretController {
             String[] decodedCredentials = new String(decodedBytes).split(":");
 
             if (applicationService.validCredential(decodedCredentials[0], decodedCredentials[1])) {
-                String secret = secretService.retrieveSecret(decodedCredentials[0], secretId);
-
-                if (secret != null) {
+                try {
+                    String secret = secretService.retrieveSecret(decodedCredentials[0], secretId);
                     return new ResponseEntity<>(secret, HttpStatus.OK);
-                } else {
+                } catch (ChangeSetPersister.NotFoundException e) {
                     // Responding with Not Found so there is no information given whether the requested secret exists or not
                     return new ResponseEntity<>("Secret not found for Application", HttpStatus.NOT_FOUND);
                 }
-
-
             }
         }
 
