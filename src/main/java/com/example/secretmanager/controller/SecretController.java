@@ -22,22 +22,24 @@ public class SecretController {
 
     @GetMapping("/secret/{id}")
     public ResponseEntity<String> getSecret(@PathVariable("id") String secretId, @RequestHeader(HttpHeaders.AUTHORIZATION) HttpHeaders headers) {
-        String encodedCredentials = headers.get("authorization").get(0).split(" ")[1];
+        if (headers.get("authorization") != null) {
+            String encodedCredentials = headers.get("authorization").get(0).split(" ")[1];
 
-        byte[] decodedBytes = Base64.getDecoder().decode(encodedCredentials);
-        String[] decodedCredentials = new String(decodedBytes).split(":");
+            byte[] decodedBytes = Base64.getDecoder().decode(encodedCredentials);
+            String[] decodedCredentials = new String(decodedBytes).split(":");
 
-        if (applicationService.validCredential(decodedCredentials[0], decodedCredentials[1])) {
-            String secret = secretService.retrieveSecret(decodedCredentials[0], secretId);
+            if (applicationService.validCredential(decodedCredentials[0], decodedCredentials[1])) {
+                String secret = secretService.retrieveSecret(decodedCredentials[0], secretId);
 
-            if (secret != null) {
-                return new ResponseEntity<>(secret, HttpStatus.OK);
-            } else {
-                // Responding with Not Found so there is no information given whether the requested secret exists or not
-                return new ResponseEntity<>("Secret not found for Application", HttpStatus.NOT_FOUND);
+                if (secret != null) {
+                    return new ResponseEntity<>(secret, HttpStatus.OK);
+                } else {
+                    // Responding with Not Found so there is no information given whether the requested secret exists or not
+                    return new ResponseEntity<>("Secret not found for Application", HttpStatus.NOT_FOUND);
+                }
+
+
             }
-
-
         }
 
         return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
@@ -45,6 +47,10 @@ public class SecretController {
 
     @PostMapping("/secret")
     public ResponseEntity<String> postSecret(@RequestBody SecretDTO secretDTO) {
+        if (secretDTO.getId() == null || secretDTO.getSecretVal() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         secretService.newSecret(secretDTO);
         return new ResponseEntity<>("Secret created", HttpStatus.OK);
     }

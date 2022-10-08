@@ -4,7 +4,6 @@ import com.example.secretmanager.dto.ApplicationDTO;
 import com.example.secretmanager.model.Application;
 import com.example.secretmanager.repository.ApplicationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +11,8 @@ import java.util.Optional;
 
 @Service
 public class ApplicationService {
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Autowired
     ApplicationRepository applicationRepository;

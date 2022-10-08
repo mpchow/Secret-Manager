@@ -6,6 +6,7 @@ import com.example.secretmanager.model.Secret;
 import com.example.secretmanager.repository.ApplicationRepository;
 import com.example.secretmanager.repository.SecretRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,15 +29,9 @@ public class AccessService {
             Application application = applicationData.get();
 
             ArrayList<String> allowedSecrets;
-            String oldAllowedSecrets = application.getAllowedSecrets();
             String newAllowedSecrets = "";
 
-//            if (oldAllowedSecrets == null) {
-//                allowedSecrets = new ArrayList<>();
-//            } else {
-                allowedSecrets = new ArrayList<>(Arrays.asList(oldAllowedSecrets.split(",")));
-//            }
-
+            allowedSecrets = new ArrayList<>(Arrays.asList(application.getAllowedSecrets().split(",")));
             allowedSecrets.add(accessDTO.getSecretId());
 
             for (String secret : allowedSecrets) {

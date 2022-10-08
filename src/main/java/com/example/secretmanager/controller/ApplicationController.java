@@ -17,6 +17,10 @@ public class ApplicationController {
 
     @PostMapping("/application")
     public ResponseEntity<String> postApplication(@RequestBody ApplicationDTO applicationDTO) {
+        if (applicationDTO.getId() == null || applicationDTO.getSecretToken() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
         applicationService.newApplication(applicationDTO);
         return new ResponseEntity<>("Application created", HttpStatus.OK);
     }
