@@ -14,7 +14,9 @@ public class Application {
 
     private String allowedSecrets;
 
-    public Application() {}
+    public Application() {
+        this.allowedSecrets = "";
+    }
 
     public void setId(String id) {
         this.id = id;

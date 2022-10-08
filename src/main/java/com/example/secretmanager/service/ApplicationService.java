@@ -31,4 +31,14 @@ public class ApplicationService {
 
         applicationRepository.save(application);
     }
+
+    public Boolean validCredential(String id, String token) {
+        Optional<Application> applicationData = applicationRepository.findById(id);
+
+        if (applicationData.isPresent()) {
+            Application application = applicationData.get();
+            return passwordEncoder.matches(token, application.getSecretToken());
+        }
+        return false;
+    }
 }

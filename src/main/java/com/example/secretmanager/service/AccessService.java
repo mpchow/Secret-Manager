@@ -31,11 +31,11 @@ public class AccessService {
             String oldAllowedSecrets = application.getAllowedSecrets();
             String newAllowedSecrets = "";
 
-            if (oldAllowedSecrets == null) {
-                allowedSecrets = new ArrayList<>();
-            } else {
+//            if (oldAllowedSecrets == null) {
+//                allowedSecrets = new ArrayList<>();
+//            } else {
                 allowedSecrets = new ArrayList<>(Arrays.asList(oldAllowedSecrets.split(",")));
-            }
+//            }
 
             allowedSecrets.add(accessDTO.getSecretId());
 
