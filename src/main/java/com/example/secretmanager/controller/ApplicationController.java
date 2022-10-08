@@ -1,7 +1,6 @@
 package com.example.secretmanager.controller;
 
 import com.example.secretmanager.dto.ApplicationDTO;
-import com.example.secretmanager.repository.ApplicationRepository;
 import com.example.secretmanager.service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,14 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApplicationController {
 
     @Autowired
-    ApplicationRepository applicationRepository;
-
-    @Autowired
     ApplicationService applicationService;
 
     @PostMapping("/application")
     public ResponseEntity<String> postApplication(@RequestBody ApplicationDTO applicationDTO) {
-        System.out.print(applicationDTO);
         applicationService.newApplication(applicationDTO);
         return new ResponseEntity<>("Application created", HttpStatus.OK);
     }

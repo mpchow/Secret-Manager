@@ -15,12 +15,12 @@ public class ApplicationService {
     @Autowired
     ApplicationRepository applicationRepository;
 
-    public Application newApplication(ApplicationDTO applicationDTO) {
+    public void newApplication(ApplicationDTO applicationDTO) {
         Application application = new Application();
         application.setId(applicationDTO.getId());
 
         application.setSecretToken(passwordEncoder.encode(applicationDTO.getSecretToken()));
 
-        return applicationRepository.save(application);
+        applicationRepository.save(application);
     }
 }
