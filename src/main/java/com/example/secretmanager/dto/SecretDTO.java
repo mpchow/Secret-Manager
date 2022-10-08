@@ -1,15 +1,11 @@
 package com.example.secretmanager.dto;
 
-import org.springframework.lang.NonNull;
-
 import javax.persistence.Id;
 
 public class SecretDTO {
     @Id
-    @NonNull
     private String id;
 
-    @NonNull
     private String secretVal;
 
     protected SecretDTO() {}

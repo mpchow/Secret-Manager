@@ -1,7 +1,5 @@
 package com.example.secretmanager.model;
 
-import org.hibernate.annotations.Type;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 

@@ -1,6 +1,5 @@
 package com.example.secretmanager.controller;
 
-import com.example.secretmanager.dto.AccessDTO;
 import com.example.secretmanager.dto.ApplicationDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
