@@ -57,7 +57,7 @@ secretVal: String
 - secretVal: the passphrase for the secret
 
 ## API Specification
-The endpoints were split up based on what operation and data they need to manipulate. `/secret` and `/application` are created to handle all CRUD methods for the respective model. `\access` is separate since it is a different type of operation even though behind the scenes it updates the application model.
+The endpoints were split up based on what operation and data they need to manipulate. `/secret` and `/application` are created to handle all CRUD methods for the respective model. `/access` is separate since it is a different type of operation even though behind the scenes it updates the application model.
 
 ### /application
 **POST**  
