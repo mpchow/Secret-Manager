@@ -5,7 +5,7 @@ HTTP Spring Boot service built with Gradle to handle secret management. Administ
 **Preinstallation**  
 Secret Manager is built on Spring Boot 2.7.4 and Java 17.  
 Steps to install the latest versions can be found below.   
-[Gradle installation](https://gradle.org/install/)   
+[Gradle installation](https://gradle.org/install/) (If on macOS can use homebrew)  
 [Java installation](https://www.oracle.com/java/technologies/downloads/)
 
 1. Clone the repository
@@ -59,6 +59,8 @@ Body:
     secretId: String
 }
 ```
+
+Response Codes: 200, 400, 404, 500
 
 ## Further Information
 You can find further design information under `/docs`
