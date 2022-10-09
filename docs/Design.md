@@ -23,7 +23,7 @@ An example flow would be as follows
 In order to make the design easy to iterate upon, functionality was split up between the Presentation, Service, and Data Layer. This was done to make code that is simple and reusable. It also follows Spring's design pattern.
 
 **Presentation Layer**  
-This refers to the controller classes. The controller classes simply determine how the response data should be formatted and presented while accessing the Service Layer.
+This refers to the controller classes. The controller classes simply determine how the response data should be formatted and presented while accessing the Service Layer. DTO (Data transfer object) are used to transfer data from what the endpoint requires into the internal model.
 
 **Service Layer**  
 This refers to the service classes. The service classes handle all business logic like authentication, entity creation, permission updates.
@@ -35,9 +35,29 @@ For simplicity the h2 database was chosen since it is automatically configured b
 **Note:** A diagram should be here but I ran out of time to create one.
 
 ## Data Models
+**Application**
+```
+id: String
+name: String
+secretToken: String
+allowedSecrets: String
+```
+- id: A generated uuid for the application
+- name: The name of the registered application
+- secretToken: The generated secretToken for the application to access secrets. Stored by hashing and salting the returned secretToken
+- allowedSecrets: The secretIds that the application is permitted to request separated by `,`. Eg. `id1,id2,`
+
+**Secret**
+```
+id: String 
+secretVal: String
+```
+
+- id: The id of the secret
+- secretVal: the passphrase for the secret
 
 ## API Specification
-The endpoints were split up based on what operation and data they need to manipulate. `/secret` and `/application` are created to handle all CRUD methods for the respective model.
+The endpoints were split up based on what operation and data they need to manipulate. `/secret` and `/application` are created to handle all CRUD methods for the respective model. `\access` is separate since it is a different type of operation even though behind the scenes it updates the application model.
 
 ### /application
 **POST**  
@@ -95,7 +115,7 @@ Body:
 ```
 
 
-Response Codes: 200, 400, 500
+Response Codes:
 ```
 200: Secret is successfully registered
 400: Request body is not properly formed or application is already registered
@@ -114,19 +134,28 @@ Body:
 }
 ```
 
-Response Codes: 200, 400, 404, 500
+Response Codes:
+```
+200: Permission successfully granted
+400: Request body is not properly formed
+404: Application or Secret is not found
+500: Internal server error
+```
 
-**Data Models**
-
+## Assumptions
+- The number of secrets an application should have access to is reasonably small. 
+  - h2 character varying supports up to 1,000,000,000 characters
+- Only the Admin will access admin endpoints
 
 
 
 ## Limitations, and Improvements
 These are a list of known limitations of the service and different ways they could be improved on.
 
-| Limitation                                                           | Improvement                                                                                                     |
-|----------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
-| The endpoints the Admin accesses are unsecured                       | Secure the Admin endpoints<br/> Unsure which auth method to utilize but further investigation would be required |
-| The secret value is stored in plaintext in the database (not secure) | Encrypt the secret value in the database <br/> This could be done by providing an encryption key once           |
-| Applications cannot be updated                                       | Add endpoints to allow for updating                                                                             |
-| Secrets and Applications cannot be deleted                           | Add endpoints to allow for deletion                                                                             |
+| Limitation                                                                                                 | Improvement                                                                                                     |
+|------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| The endpoints the Admin accesses are unsecured                                                             | Secure the Admin endpoints<br/> Unsure which auth method to utilize but further investigation would be required |
+| The secret value is stored in plaintext in the database (not secure)                                       | Encrypt the secret value in the database <br/> This could be done by providing an encryption key once           |
+| Applications cannot be updated                                                                             | Add endpoints to allow for updating                                                                             |
+| Secrets and Applications cannot be deleted                                                                 | Add endpoints to allow for deletion                                                                             |
+|  |                                                                                                                 | 
