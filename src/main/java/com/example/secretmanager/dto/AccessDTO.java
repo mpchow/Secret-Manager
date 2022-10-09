@@ -1,6 +1,5 @@
 package com.example.secretmanager.dto;
 
-import java.util.UUID;
 
 public class AccessDTO {
     private String id;

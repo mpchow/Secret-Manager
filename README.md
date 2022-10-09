@@ -50,7 +50,7 @@ Response:
 
 ### /secret/{id}
 **GET**  
-Retrieves the requested secret value if the application has permission. Requires Basic Auth using the returned `id` and token
+Retrieves the requested secret value if the application has permission. Requires Basic Auth using the returned `id` and `token`
  from the `/application` endpoint
 Response Codes:
 ```
