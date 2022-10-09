@@ -90,8 +90,7 @@ public class IntegrationTest {
 
         HashMap<String, String> credentials = new ObjectMapper().readValue(applicationResult.getResponse().getContentAsString(), HashMap.class);
 
-        for (int i = 0; i < secrets.size(); i++) {
-            SecretDTO secretDTO = secrets.get(i);
+        for (SecretDTO secretDTO : secrets) {
             AccessDTO accessDTO = new AccessDTO(credentials.get("id"), secretDTO.getId());
 
             mvc.perform(MockMvcRequestBuilders.post("/secret")

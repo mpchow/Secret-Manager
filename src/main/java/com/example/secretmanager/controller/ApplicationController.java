@@ -8,7 +8,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -20,12 +19,15 @@ public class ApplicationController {
     // Handles Post requests to register a new application to the secret manager
     @PostMapping("/application")
     public ResponseEntity<Map<String, String>> postApplication(@RequestBody ApplicationDTO applicationDTO) {
-        if (applicationDTO.getName() != null) {
-            try {
-                Map<String, String> response = applicationService.saveApplication(applicationDTO);
-                return new ResponseEntity<>(response, HttpStatus.OK);
-            } catch (IllegalArgumentException e) {}
+        if (applicationDTO.getName() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+
+        try {
+            Map<String, String> response = applicationService.saveApplication(applicationDTO);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
