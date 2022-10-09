@@ -15,7 +15,7 @@ Steps to install the latest versions can be found below.
 
 **Usage**
 1. Clone the repository
-2. Run `./gradle bootRun` in the top level directory
+2. Run `./gradlew bootRun` in the top level directory
 3. The service can be found at `http://localhost:8080`
 
 **Testing**  
@@ -32,7 +32,13 @@ Body:
     name: String  
 }  
 ```
-Response Codes: 200, 400, 500
+Response Codes: 
+```
+200: Application is successfully registered
+400: Request body is not properly formed or application is already registered
+500: Internal server error
+```
+
 Response:
 ```
 {
@@ -43,9 +49,15 @@ Response:
 
 ### /secret/{id}
 **GET**  
-Retrieves the requested secret value if the application has permission. Requires Basic Auth
-
-Response Codes: 200, 401, 404, 500  
+Retrieves the requested secret value if the application has permission. Requires Basic Auth using the returned `id` and `token
+ from the `/application` endpoint
+Response Codes:
+```
+200: Successfully authenticated and found corresponding secret
+401: No auth provided or credentials are invalid
+404: Requested secret is not found
+500: Internal server error
+```
 Response:  
 ``` 
 {
@@ -67,6 +79,11 @@ Body:
 
 
 Response Codes: 200, 400, 500
+```
+200: Secret is successfully registered
+400: Request body is not properly formed or application is already registered
+500: Internal server error
+```
 
 ### /access
 **POST**  

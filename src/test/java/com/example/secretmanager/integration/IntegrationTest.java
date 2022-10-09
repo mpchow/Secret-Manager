@@ -135,6 +135,7 @@ public class IntegrationTest {
         HashMap<String, String> secretResponseForApp1;
         HashMap<String, String> secretResponseForApp2;
 
+        // app1 is registered
         MvcResult applicationResult1 = mvc.perform(MockMvcRequestBuilders.post("/application")
             .content(new ObjectMapper().writeValueAsString(applicationDTO1))
             .contentType(MediaType.APPLICATION_JSON)
@@ -144,30 +145,35 @@ public class IntegrationTest {
 
         credentials1 = new ObjectMapper().readValue(applicationResult1.getResponse().getContentAsString(), HashMap.class);
 
+        // app1 tries to retrieve a secret but it has no access to any secrets currently
         mvc.perform(MockMvcRequestBuilders.post("/access")
             .content(new ObjectMapper().writeValueAsString(new AccessDTO(credentials1.get("id"), "secret1")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
 
+        // secret1 is registered
         mvc.perform(MockMvcRequestBuilders.post("/secret")
             .content(new ObjectMapper().writeValueAsString(secretDTO1))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
+        // app1 is given permission for secret1
         mvc.perform(MockMvcRequestBuilders.post("/access")
             .content(new ObjectMapper().writeValueAsString(new AccessDTO(credentials1.get("id"), "secret1")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
+        // try to give app2 permission for secret2 but app2 is unregistered
         mvc.perform(MockMvcRequestBuilders.post("/access")
             .content(new ObjectMapper().writeValueAsString(new AccessDTO("app2", "secret1")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound());
 
+        // app1 successfully retrieves secret1
         secretResultForApp1 = mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO1.getId())
             .with(httpBasic(credentials1.get("id"), credentials1.get("token")))
             .contentType(MediaType.APPLICATION_JSON)
@@ -178,6 +184,7 @@ public class IntegrationTest {
         secretResponseForApp1 = new ObjectMapper().readValue(secretResultForApp1.getResponse().getContentAsString(), HashMap.class);
         assertEquals("Checking secret value", secretDTO1.getSecretVal(), secretResponseForApp1.get("secret"));
 
+        // app2 is registered
         MvcResult applicationResult2 = mvc.perform(MockMvcRequestBuilders.post("/application")
             .content(new ObjectMapper().writeValueAsString(applicationDTO2))
             .contentType(MediaType.APPLICATION_JSON)
@@ -187,24 +194,28 @@ public class IntegrationTest {
 
         credentials2 = new ObjectMapper().readValue(applicationResult2.getResponse().getContentAsString(), HashMap.class);
 
+        // app2 is given permission for secret1
         mvc.perform(MockMvcRequestBuilders.post("/access")
             .content(new ObjectMapper().writeValueAsString(new AccessDTO(credentials2.get("id"), "secret1")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
+        // secret2 is registered
         mvc.perform(MockMvcRequestBuilders.post("/secret")
             .content(new ObjectMapper().writeValueAsString(secretDTO2))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
+        // app1 is given permission fo secret2
         mvc.perform(MockMvcRequestBuilders.post("/access")
             .content(new ObjectMapper().writeValueAsString(new AccessDTO(credentials1.get("id"), "secret2")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
 
+        // app1 successfully retrieves secret2
         secretResultForApp1 = mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO2.getId())
             .with(httpBasic(credentials1.get("id"), credentials1.get("token")))
             .contentType(MediaType.APPLICATION_JSON)
@@ -215,6 +226,7 @@ public class IntegrationTest {
         secretResponseForApp1 = new ObjectMapper().readValue(secretResultForApp1.getResponse().getContentAsString(), HashMap.class);
         assertEquals("Checking secret value", secretDTO2.getSecretVal(), secretResponseForApp1.get("secret"));
 
+        // app2 successfully retrieves secret1
         secretResultForApp2 = mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO1.getId())
             .with(httpBasic(credentials2.get("id"), credentials2.get("token")))
             .contentType(MediaType.APPLICATION_JSON)
