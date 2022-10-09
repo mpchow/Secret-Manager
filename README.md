@@ -24,24 +24,34 @@ Run `gradle test` from the top level directory
 ## API Specification
 ### /application
 **POST**  
-Registers a new application to the service. If the application is already registered, replaces the secretToken  
+Registers a new application to the service and responds with an id and secret token to be used for Basic Auth. If the application is already registered will return an error.
 
 Body:
 ```
 {  
-    id: String  
-    secretToken: String  
+    name: String  
 }  
 ```
 Response Codes: 200, 400, 500
+Response:
+```
+{
+    id: String
+    token: String
+}
+```
 
 ### /secret/{id}
 **GET**  
 Retrieves the requested secret value if the application has permission. Requires Basic Auth
 
 Response Codes: 200, 401, 404, 500  
-Response: (As a String)   
-``` secretVal```
+Response:  
+``` 
+{
+    secret: String    
+}
+```
 
 ### /secret
 **POST**  
