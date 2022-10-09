@@ -36,7 +36,7 @@ public class AccessControllerTest {
         doNothing().when(accessService).addAllowedSecret(any(AccessDTO.class));
 
         mvc.perform(MockMvcRequestBuilders.post("/access")
-            .content(new ObjectMapper().writeValueAsString(new AccessDTO("test-id", "test-secret")))
+            .content(new ObjectMapper().writeValueAsString(new AccessDTO("id", "secretId")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -46,7 +46,7 @@ public class AccessControllerTest {
     @Test
     public void testPostMalformedInput() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/access")
-            .content(new ObjectMapper().writeValueAsString(new AccessDTO(null, "test-secret")))
+            .content(new ObjectMapper().writeValueAsString(new AccessDTO(null, "secretId")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest())
@@ -58,11 +58,10 @@ public class AccessControllerTest {
         doThrow(ChangeSetPersister.NotFoundException.class).when(accessService).addAllowedSecret(any(AccessDTO.class));
 
         mvc.perform(MockMvcRequestBuilders.post("/access")
-            .content(new ObjectMapper().writeValueAsString(new AccessDTO("test-id", "test-secret")))
+            .content(new ObjectMapper().writeValueAsString(new AccessDTO("id", "secretId")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
             .andExpect(content().string(emptyString()));
     }
-
 }

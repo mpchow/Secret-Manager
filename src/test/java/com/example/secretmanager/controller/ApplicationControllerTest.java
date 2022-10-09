@@ -10,8 +10,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.HashMap;
-
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,7 +25,7 @@ public class ApplicationControllerTest {
     @Test
     public void testPostSuccessfulRequest() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/application")
-            .content(new ObjectMapper().writeValueAsString(new ApplicationDTO("test-id", "test-token")))
+            .content(new ObjectMapper().writeValueAsString(new ApplicationDTO("id", "test-token")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())

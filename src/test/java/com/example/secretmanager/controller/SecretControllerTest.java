@@ -14,7 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.mockito.Mockito.doThrow;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 
 import static org.hamcrest.Matchers.emptyString;
@@ -39,7 +38,7 @@ public class SecretControllerTest {
     @Test
     public void testPostSuccessfulRequest() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/secret")
-            .content(new ObjectMapper().writeValueAsString(new SecretDTO("test-id", "test-val")))
+            .content(new ObjectMapper().writeValueAsString(new SecretDTO("secretId", "secretVal")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -49,7 +48,7 @@ public class SecretControllerTest {
     @Test
     public void testPostMalformedInput() throws Exception {
         mvc.perform(MockMvcRequestBuilders.post("/secret")
-            .content(new ObjectMapper().writeValueAsString(new SecretDTO(null, "test-token")))
+            .content(new ObjectMapper().writeValueAsString(new SecretDTO(null, "secretVal")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest())
@@ -71,11 +70,11 @@ public class SecretControllerTest {
 
     @Test
     public void testGetBadCredentials() throws Exception {
-        when(applicationService.validCredential("user", "pass")).thenReturn(false);
-        when(secretService.retrieveSecret("user","secretId")).thenReturn("secretVal");
+        when(applicationService.validCredential("id", "token")).thenReturn(false);
+        when(secretService.retrieveSecret("id","secretId")).thenReturn("secretVal");
 
         mvc.perform(MockMvcRequestBuilders.get("/secret/secretId")
-            .with(httpBasic("user", "pass"))
+            .with(httpBasic("id", "token"))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnauthorized())
@@ -84,8 +83,8 @@ public class SecretControllerTest {
 
     @Test
     public void testGetNoCredentials() throws Exception {
-        when(applicationService.validCredential("user", "pass")).thenReturn(false);
-        when(secretService.retrieveSecret("user","secretId")).thenReturn("secretVal");
+        when(applicationService.validCredential("id", "token")).thenReturn(false);
+        when(secretService.retrieveSecret("id","secretId")).thenReturn("secretVal");
 
         mvc.perform(MockMvcRequestBuilders.get("/secret/secretId")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -96,11 +95,11 @@ public class SecretControllerTest {
 
     @Test
     public void testGetBadSecretId() throws Exception {
-        when(applicationService.validCredential("user", "pass")).thenReturn(true);
-        when(secretService.retrieveSecret("user","secretId")).thenThrow(ChangeSetPersister.NotFoundException.class);
+        when(applicationService.validCredential("id", "token")).thenReturn(true);
+        when(secretService.retrieveSecret("id","secretId")).thenThrow(ChangeSetPersister.NotFoundException.class);
 
         mvc.perform(MockMvcRequestBuilders.get("/secret/secretId")
-            .with(httpBasic("user", "pass"))
+            .with(httpBasic("id", "token"))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
