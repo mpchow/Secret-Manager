@@ -21,11 +21,12 @@ public class SecretController {
     @Autowired
     ApplicationService applicationService;
 
+    // Handles Get requests to retrieve a given secret. Requires Basic Auth
     @GetMapping("/secret/{id}")
     public ResponseEntity<String> getSecret(@PathVariable("id") String secretId, @RequestHeader(HttpHeaders.AUTHORIZATION) HttpHeaders headers) {
         if (headers.get("authorization") != null) {
+            // Decode the Basic Auth credentials from base64
             String encodedCredentials = headers.get("authorization").get(0).split(" ")[1];
-
             byte[] decodedBytes = Base64.getDecoder().decode(encodedCredentials);
             String[] decodedCredentials = new String(decodedBytes).split(":");
 
@@ -43,6 +44,7 @@ public class SecretController {
         return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
     }
 
+    // Handles Post requests to create a new secret in the secret manager
     @PostMapping("/secret")
     public ResponseEntity<String> postSecret(@RequestBody SecretDTO secretDTO) {
         if (secretDTO.getId() == null || secretDTO.getSecretVal() == null) {

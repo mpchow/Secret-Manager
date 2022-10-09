@@ -10,6 +10,7 @@ public class Application {
 
     private String secretToken;
 
+    // Store the secrets an application is permitted to retrieve as a string of id's separated by ","
     private String allowedSecrets;
 
     public Application() {

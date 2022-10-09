@@ -13,6 +13,7 @@ public class AccessController {
     @Autowired
     AccessService accessService;
 
+    // Handles Post requests to give an application access to a given secret
     @PostMapping("/access")
     public ResponseEntity<String> postAccess(@RequestBody AccessDTO accessDTO) {
         if (accessDTO.getId() == null || accessDTO.getSecretId() == null) {

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 
 @Service
@@ -35,7 +36,9 @@ public class SecretService {
         Optional<Application> applicationData = applicationRepository.findById(id);
         if (applicationData.isPresent()) {
             Application application = applicationData.get();
-            ArrayList<String> allowedSecrets = new ArrayList<>(Arrays.asList(application.getAllowedSecrets().split(",")));
+
+            // Parse the allowedSecrets as a set to check if the application is permitted to retrieve the secret
+            HashSet<String> allowedSecrets = new HashSet<>(Arrays.asList(application.getAllowedSecrets().split(",")));
 
             if (allowedSecrets.contains(secretId)) {
                 Optional<Secret> secretData = secretRepository.findById(secretId);

@@ -20,6 +20,8 @@ public class ApplicationService {
     public void saveApplication(ApplicationDTO applicationDTO) {
         Optional<Application> applicationData = applicationRepository.findById(applicationDTO.getId());
         Application application;
+
+        // If the application already exists, replace the exiting token
         if (applicationData.isPresent()) {
             application = applicationData.get();
         } else {
@@ -31,6 +33,7 @@ public class ApplicationService {
         applicationRepository.save(application);
     }
 
+    // Check if a credential is valid
     public Boolean validCredential(String id, String token) {
         Optional<Application> applicationData = applicationRepository.findById(id);
 

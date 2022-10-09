@@ -9,8 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 
 @Service
@@ -31,14 +29,9 @@ public class AccessService {
 
         Application application = applicationData.get();
 
-        ArrayList<String> allowedSecrets = new ArrayList<>(Arrays.asList(application.getAllowedSecrets().split(",")));
-        allowedSecrets.add(accessDTO.getSecretId());
-
-        String newAllowedSecrets = "";
-
-        for (String secret : allowedSecrets) {
-            newAllowedSecrets += secret + ",";
-        }
+        // Append the new secret
+        String newAllowedSecrets = application.getAllowedSecrets();
+        newAllowedSecrets += accessDTO.getSecretId() + ",";
 
         application.setAllowedSecrets(newAllowedSecrets);
 

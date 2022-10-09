@@ -52,7 +52,7 @@ public class AccessServiceTest {
         verify(secretRepository, times(1)).findById("secretId");
         verify(applicationRepository, times(1)).findById("id");
         verify(applicationRepository).save(argument.capture());
-        assertEquals("Checking permitted secrets", ",secretId,", argument.getValue().getAllowedSecrets());
+        assertEquals("Checking permitted secrets", "secretId,", argument.getValue().getAllowedSecrets());
     }
 
     @Test

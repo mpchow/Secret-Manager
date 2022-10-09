@@ -15,6 +15,7 @@ public class ApplicationController {
     @Autowired
     ApplicationService applicationService;
 
+    // Handles Post requests to register a new application to the secret manager
     @PostMapping("/application")
     public ResponseEntity<String> postApplication(@RequestBody ApplicationDTO applicationDTO) {
         if (applicationDTO.getId() == null || applicationDTO.getSecretToken() == null) {
