@@ -13,9 +13,13 @@ Steps to install the latest versions can be found below.
 [Gradle installation](https://gradle.org/install/) (If on macOS can use homebrew)  
 [Java installation](https://www.oracle.com/java/technologies/downloads/)
 
+**Usage**
 1. Clone the repository
 2. Run `./gradle bootRun` in the top level directory
 3. The service can be found at `http://localhost:8080`
+
+**Testing**  
+Run `gradle test` from the top level directory
 
 ## API Specification
 ### /application
