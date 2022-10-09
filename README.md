@@ -4,7 +4,7 @@ HTTP Spring Boot service built with Gradle to handle secret management. Administ
 1. [How to run](#how-to-run)
 2. [API Specification](#api-specification)
 
-You can find further information in the design doc under `/docs`
+**You can find further information in the design doc under `/docs`**
 
 ## How to run
 **Preinstallation**  
@@ -49,7 +49,7 @@ Response:
 
 ### /secret/{id}
 **GET**  
-Retrieves the requested secret value if the application has permission. Requires Basic Auth using the returned `id` and `token
+Retrieves the requested secret value if the application has permission. Requires Basic Auth using the returned `id` and token
  from the `/application` endpoint
 Response Codes:
 ```
