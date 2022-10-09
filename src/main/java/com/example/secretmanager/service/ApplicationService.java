@@ -7,7 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.Optional;
+
+import static org.springframework.security.crypto.keygen.KeyGenerators.secureRandom;
 
 @Service
 public class ApplicationService {
@@ -17,20 +21,28 @@ public class ApplicationService {
     @Autowired
     ApplicationRepository applicationRepository;
 
-    public void saveApplication(ApplicationDTO applicationDTO) {
-        Optional<Application> applicationData = applicationRepository.findById(applicationDTO.getId());
-        Application application;
+    public HashMap<String, String> saveApplication(ApplicationDTO applicationDTO) throws IllegalArgumentException {
+        Optional<Application> applicationData = applicationRepository.findByName(applicationDTO.getName());
 
-        // If the application already exists, replace the exiting token
         if (applicationData.isPresent()) {
-            application = applicationData.get();
-        } else {
-            application = new Application();
-            application.setId(applicationDTO.getId());
+            throw new IllegalArgumentException();
         }
-        application.setSecretToken(passwordEncoder.encode(applicationDTO.getSecretToken()));
+
+        HashMap<String, String> response = new HashMap<>();
+
+        Application application = new Application();
+        application.setName(applicationDTO.getName());
+
+        SecureRandom secureRandom = new SecureRandom();
+        String token = Long.toString(secureRandom.nextLong(0, Long.MAX_VALUE));
+
+        application.setSecretToken(passwordEncoder.encode(token));
 
         applicationRepository.save(application);
+
+        response.put("id", application.getId());
+        response.put("token", token);
+        return response;
     }
 
     // Check if a credential is valid

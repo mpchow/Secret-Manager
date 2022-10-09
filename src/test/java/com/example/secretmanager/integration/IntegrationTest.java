@@ -12,14 +12,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,169 +38,191 @@ public class IntegrationTest {
 
     @Test
     public void testBasicFlow() throws Exception {
-        ApplicationDTO applicationDTO = new ApplicationDTO("app1", "token1");
-        SecretDTO secretDTO = new SecretDTO("secret1", "secretpass1");
-        AccessDTO accessDTO = new AccessDTO("app1", "secret1");
+        ApplicationDTO applicationDTO = new ApplicationDTO("app");
+        SecretDTO secretDTO = new SecretDTO("secret", "secretpass");
+        AccessDTO accessDTO;
 
-        mvc.perform(MockMvcRequestBuilders.post("/application")
+        MvcResult applicationResult = mvc.perform(MockMvcRequestBuilders.post("/application")
             .content(new ObjectMapper().writeValueAsString(applicationDTO))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Application created")));
+            .andReturn();
+
+        HashMap<String, String> credentials = new ObjectMapper().readValue(applicationResult.getResponse().getContentAsString(), HashMap.class);
+        accessDTO = new AccessDTO(credentials.get("id"), "secret");
 
         mvc.perform(MockMvcRequestBuilders.post("/secret")
             .content(new ObjectMapper().writeValueAsString(secretDTO))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Secret created")));
+            .andExpect(status().isOk());
 
         mvc.perform(MockMvcRequestBuilders.post("/access")
             .content(new ObjectMapper().writeValueAsString(accessDTO))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Access successfully updated")));
+            .andExpect(status().isOk());
 
-        mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO.getId())
-            .with(httpBasic(applicationDTO.getId(), applicationDTO.getSecretToken()))
+        MvcResult secretResult = mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO.getId())
+            .with(httpBasic(credentials.get("id"), credentials.get("token")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo(secretDTO.getSecretVal())));
+            .andReturn();
+
+        HashMap<String, String> secretResponse = new ObjectMapper().readValue(secretResult.getResponse().getContentAsString(), HashMap.class);
+        assertEquals("Checking secret value", "secretpass", secretResponse.get("secret"));
+
     }
 
     @Test
     public void testMultipleSecrets() throws Exception {
-        ApplicationDTO applicationDTO = new ApplicationDTO("app1", "token1");
+        ApplicationDTO applicationDTO = new ApplicationDTO("app1");
         List<SecretDTO> secrets =  Arrays.asList(new SecretDTO("secret1", "secretpass1"), new SecretDTO("secret2", "secretpass2"), new SecretDTO("secret3", "secretpass3"), new SecretDTO("secret4", "secretpass4"));
-        List<AccessDTO> accessRequests = Arrays.asList(new AccessDTO("app1", "secret1"), new AccessDTO("app1", "secret2"), new AccessDTO("app1", "secret3"), new AccessDTO("app1", "secret4"));
 
-        mvc.perform(MockMvcRequestBuilders.post("/application")
+        MvcResult applicationResult = mvc.perform(MockMvcRequestBuilders.post("/application")
             .content(new ObjectMapper().writeValueAsString(applicationDTO))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Application created")));
+            .andReturn();
+
+        HashMap<String, String> credentials = new ObjectMapper().readValue(applicationResult.getResponse().getContentAsString(), HashMap.class);
 
         for (int i = 0; i < secrets.size(); i++) {
             SecretDTO secretDTO = secrets.get(i);
-            AccessDTO accessDTO = accessRequests.get(i);
+            AccessDTO accessDTO = new AccessDTO(credentials.get("id"), secretDTO.getId());
 
             mvc.perform(MockMvcRequestBuilders.post("/secret")
                 .content(new ObjectMapper().writeValueAsString(secretDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Secret created")));
+                .andExpect(status().isOk());
 
             mvc.perform(MockMvcRequestBuilders.post("/access")
                 .content(new ObjectMapper().writeValueAsString(accessDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(equalTo("Access successfully updated")));
+                .andExpect(status().isOk());
 
-            mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO.getId())
-                .with(httpBasic(applicationDTO.getId(), applicationDTO.getSecretToken()))
+            MvcResult secretResult = mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO.getId())
+                .with(httpBasic(credentials.get("id"), credentials.get("token")))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string(equalTo(secretDTO.getSecretVal())));
+                .andReturn();
+
+            HashMap<String, String> secretResponse = new ObjectMapper().readValue(secretResult.getResponse().getContentAsString(), HashMap.class);
+            assertEquals("Checking secret value", secretDTO.getSecretVal(), secretResponse.get("secret"));
         }
     }
 
     @Test
     public void testMultipleApplications() throws Exception {
-        ApplicationDTO applicationDTO1 = new ApplicationDTO("app1", "token1");
-        ApplicationDTO applicationDTO2 = new ApplicationDTO("app2", "token2");
+        ApplicationDTO applicationDTO1 = new ApplicationDTO("app1");
+        ApplicationDTO applicationDTO2 = new ApplicationDTO("app2");
 
         SecretDTO secretDTO1 = new SecretDTO("secret1", "secretpass1");
         SecretDTO secretDTO2 = new SecretDTO("secret2", "secretpass2");
 
-        mvc.perform(MockMvcRequestBuilders.post("/application")
+        MvcResult secretResultForApp1;
+        MvcResult secretResultForApp2;
+
+        HashMap<String, String> credentials1;
+        HashMap<String, String> credentials2;
+
+        HashMap<String, String> secretResponseForApp1;
+        HashMap<String, String> secretResponseForApp2;
+
+        MvcResult applicationResult1 = mvc.perform(MockMvcRequestBuilders.post("/application")
             .content(new ObjectMapper().writeValueAsString(applicationDTO1))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Application created")));
+            .andReturn();
+
+        credentials1 = new ObjectMapper().readValue(applicationResult1.getResponse().getContentAsString(), HashMap.class);
 
         mvc.perform(MockMvcRequestBuilders.post("/access")
-            .content(new ObjectMapper().writeValueAsString(new AccessDTO("app1", "secret1")))
+            .content(new ObjectMapper().writeValueAsString(new AccessDTO(credentials1.get("id"), "secret1")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(content().string(emptyString()));
+            .andExpect(status().isNotFound());
 
         mvc.perform(MockMvcRequestBuilders.post("/secret")
             .content(new ObjectMapper().writeValueAsString(secretDTO1))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Secret created")));
+            .andExpect(status().isOk());
 
         mvc.perform(MockMvcRequestBuilders.post("/access")
-            .content(new ObjectMapper().writeValueAsString(new AccessDTO("app1", "secret1")))
+            .content(new ObjectMapper().writeValueAsString(new AccessDTO(credentials1.get("id"), "secret1")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Access successfully updated")));
+            .andExpect(status().isOk());
 
         mvc.perform(MockMvcRequestBuilders.post("/access")
             .content(new ObjectMapper().writeValueAsString(new AccessDTO("app2", "secret1")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isNotFound())
-            .andExpect(content().string(emptyString()));
+            .andExpect(status().isNotFound());
 
-        mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO1.getId())
-            .with(httpBasic(applicationDTO1.getId(), applicationDTO1.getSecretToken()))
+        secretResultForApp1 = mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO1.getId())
+            .with(httpBasic(credentials1.get("id"), credentials1.get("token")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo(secretDTO1.getSecretVal())));
+            .andReturn();
 
-        mvc.perform(MockMvcRequestBuilders.post("/application")
+        secretResponseForApp1 = new ObjectMapper().readValue(secretResultForApp1.getResponse().getContentAsString(), HashMap.class);
+        assertEquals("Checking secret value", secretDTO1.getSecretVal(), secretResponseForApp1.get("secret"));
+
+        MvcResult applicationResult2 = mvc.perform(MockMvcRequestBuilders.post("/application")
             .content(new ObjectMapper().writeValueAsString(applicationDTO2))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Application created")));
+            .andReturn();
+
+        credentials2 = new ObjectMapper().readValue(applicationResult2.getResponse().getContentAsString(), HashMap.class);
 
         mvc.perform(MockMvcRequestBuilders.post("/access")
-            .content(new ObjectMapper().writeValueAsString(new AccessDTO("app2", "secret1")))
+            .content(new ObjectMapper().writeValueAsString(new AccessDTO(credentials2.get("id"), "secret1")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Access successfully updated")));
+            .andExpect(status().isOk());
 
         mvc.perform(MockMvcRequestBuilders.post("/secret")
             .content(new ObjectMapper().writeValueAsString(secretDTO2))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Secret created")));
+            .andExpect(status().isOk());
 
         mvc.perform(MockMvcRequestBuilders.post("/access")
-            .content(new ObjectMapper().writeValueAsString(new AccessDTO("app1", "secret2")))
+            .content(new ObjectMapper().writeValueAsString(new AccessDTO(credentials1.get("id"), "secret2")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Access successfully updated")));
+            .andExpect(status().isOk());
 
-        mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO2.getId())
-            .with(httpBasic(applicationDTO1.getId(), applicationDTO1.getSecretToken()))
+        secretResultForApp1 = mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO2.getId())
+            .with(httpBasic(credentials1.get("id"), credentials1.get("token")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo(secretDTO2.getSecretVal())));
+            .andReturn();
 
-        mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO1.getId())
-            .with(httpBasic(applicationDTO2.getId(), applicationDTO2.getSecretToken()))
+        secretResponseForApp1 = new ObjectMapper().readValue(secretResultForApp1.getResponse().getContentAsString(), HashMap.class);
+        assertEquals("Checking secret value", secretDTO2.getSecretVal(), secretResponseForApp1.get("secret"));
+
+        secretResultForApp2 = mvc.perform(MockMvcRequestBuilders.get("/secret/" + secretDTO1.getId())
+            .with(httpBasic(credentials2.get("id"), credentials2.get("token")))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo(secretDTO1.getSecretVal())));
+            .andReturn();
+
+        secretResponseForApp2 = new ObjectMapper().readValue(secretResultForApp2.getResponse().getContentAsString(), HashMap.class);
+        assertEquals("Checking secret value", secretDTO1.getSecretVal(), secretResponseForApp2.get("secret"));
     }
 }

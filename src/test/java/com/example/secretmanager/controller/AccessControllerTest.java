@@ -40,7 +40,7 @@ public class AccessControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Access successfully updated")));
+            .andExpect(content().string(emptyString()));
     }
 
     @Test

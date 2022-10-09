@@ -15,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.HashMap;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
@@ -47,7 +49,7 @@ public class SecretControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("Secret created")));
+            .andExpect(content().string(emptyString()));
     }
 
     @Test
@@ -64,6 +66,9 @@ public class SecretControllerTest {
 
     @Test
     public void testGetSuccessfulRequest() throws Exception {
+        HashMap<String, String> response = new HashMap<>();
+        response.put("secret", "secretVal");
+
         when(applicationService.validCredential("user", "pass")).thenReturn(true);
         when(secretService.retrieveSecret("user","secretId")).thenReturn("secretVal");
 
@@ -72,7 +77,7 @@ public class SecretControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(content().string(equalTo("secretVal")));
+            .andExpect(content().json(new ObjectMapper().writeValueAsString(response)));
     }
 
     @Test
@@ -85,7 +90,7 @@ public class SecretControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnauthorized())
-            .andExpect(content().string(equalTo("Invalid credentials")));
+            .andExpect(content().string(emptyString()));
     }
 
     @Test
@@ -97,7 +102,7 @@ public class SecretControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnauthorized())
-                .andExpect(content().string(equalTo("Invalid credentials")));
+                .andExpect(content().string(emptyString()));
     }
 
     @Test
@@ -110,7 +115,7 @@ public class SecretControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isNotFound())
-            .andExpect(content().string(equalTo("Secret not found for Application")));
+            .andExpect(content().string(emptyString()));
     }
 
 

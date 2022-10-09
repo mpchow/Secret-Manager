@@ -4,10 +4,12 @@ import com.example.secretmanager.dto.ApplicationDTO;
 import com.example.secretmanager.service.ApplicationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 public class ApplicationController {
@@ -17,12 +19,13 @@ public class ApplicationController {
 
     // Handles Post requests to register a new application to the secret manager
     @PostMapping("/application")
-    public ResponseEntity<String> postApplication(@RequestBody ApplicationDTO applicationDTO) {
-        if (applicationDTO.getId() == null || applicationDTO.getSecretToken() == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    public ResponseEntity<Map<String, String>> postApplication(@RequestBody ApplicationDTO applicationDTO) {
+        if (applicationDTO.getName() != null) {
+            try {
+                Map<String, String> response = applicationService.saveApplication(applicationDTO);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (IllegalArgumentException e) {}
         }
-
-        applicationService.saveApplication(applicationDTO);
-        return new ResponseEntity<>("Application created", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

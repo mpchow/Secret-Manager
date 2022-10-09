@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @RestController
@@ -23,7 +25,9 @@ public class SecretController {
 
     // Handles Get requests to retrieve a given secret. Requires Basic Auth
     @GetMapping("/secret/{id}")
-    public ResponseEntity<String> getSecret(@PathVariable("id") String secretId, @RequestHeader(HttpHeaders.AUTHORIZATION) HttpHeaders headers) {
+    public ResponseEntity<Map<String, String>> getSecret(@PathVariable("id") String secretId, @RequestHeader(HttpHeaders.AUTHORIZATION) HttpHeaders headers) {
+        Map<String, String> response = new HashMap<>();
+
         if (headers.get("authorization") != null) {
             // Decode the Basic Auth credentials from base64
             String encodedCredentials = headers.get("authorization").get(0).split(" ")[1];
@@ -33,15 +37,15 @@ public class SecretController {
             if (applicationService.validCredential(decodedCredentials[0], decodedCredentials[1])) {
                 try {
                     String secret = secretService.retrieveSecret(decodedCredentials[0], secretId);
-                    return new ResponseEntity<>(secret, HttpStatus.OK);
+                    response.put("secret", secret);
+                    return new ResponseEntity<>(response, HttpStatus.OK);
                 } catch (ChangeSetPersister.NotFoundException e) {
                     // Responding with Not Found so there is no information given whether the requested secret exists or not
-                    return new ResponseEntity<>("Secret not found for Application", HttpStatus.NOT_FOUND);
+                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
                 }
             }
         }
-
-        return new ResponseEntity<>("Invalid credentials", HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
     }
 
     // Handles Post requests to create a new secret in the secret manager
@@ -52,7 +56,7 @@ public class SecretController {
         }
 
         secretService.newSecret(secretDTO);
-        return new ResponseEntity<>("Secret created", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

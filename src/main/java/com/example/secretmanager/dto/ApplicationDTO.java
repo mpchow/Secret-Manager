@@ -4,22 +4,15 @@ import javax.persistence.Id;
 
 public class ApplicationDTO {
     @Id
-    private String id;
-
-    private String secretToken;
+    private String name;
 
     protected ApplicationDTO() {}
 
-    public ApplicationDTO(String id, String secretToken) {
-        this.id = id;
-        this.secretToken = secretToken;
+    public ApplicationDTO(String name) {
+        this.name = name;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getSecretToken() {
-        return secretToken;
+    public String getName() {
+        return name;
     }
 }

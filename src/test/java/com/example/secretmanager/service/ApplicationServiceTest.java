@@ -10,8 +10,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.security.SecureRandom;
+import java.util.HashMap;
 import java.util.Optional;
+import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.util.AssertionErrors.*;
@@ -29,38 +34,36 @@ public class ApplicationServiceTest {
 
     @Test
     public void testNewApplication() {
-        ApplicationDTO applicationDTO = new ApplicationDTO("id", "token");
+        ApplicationDTO applicationDTO = new ApplicationDTO("id");
 
         ArgumentCaptor<Application> argument = ArgumentCaptor.forClass(Application.class);
 
         when(applicationRepository.findById(any(String.class))).thenReturn(Optional.empty());
-        when(passwordEncoder.encode("token")).thenReturn("encodedToken");
 
-        applicationService.saveApplication(applicationDTO);
-
-        verify(applicationRepository, times(1)).save(argument.capture());
-        assertEquals("Checking id", "id", argument.getValue().getId());
-        assertEquals("Checking token", "encodedToken", argument.getValue().getSecretToken());
+        assertDoesNotThrow(() -> {
+            HashMap<String, String> credentials = applicationService.saveApplication(applicationDTO);
+            verify(applicationRepository, times(1)).save(argument.capture());
+            assertEquals("Checking save argument", Application.class, argument.getValue().getClass());
+            assertNotNull("Checking returned id", credentials.get("id"));
+            assertNotNull("Checking returned token", credentials.get("token"));
+        });
     }
 
     @Test
     public void testNewApplicationWithExisting() {
         Application application = new Application();
         application.setId("id");
-        application.setSecretToken("oldToken");
+        application.setSecretToken("token");
 
-        ApplicationDTO applicationDTO = new ApplicationDTO("id", "token");
+        ApplicationDTO applicationDTO = new ApplicationDTO("id");
 
         ArgumentCaptor<Application> argument = ArgumentCaptor.forClass(Application.class);
 
-        when(applicationRepository.findById(any(String.class))).thenReturn(Optional.of(application));
-        when(passwordEncoder.encode("token")).thenReturn("encodedToken");
+        when(applicationRepository.findByName(any(String.class))).thenReturn(Optional.of(application));
 
-        applicationService.saveApplication(applicationDTO);
-
-        verify(applicationRepository, times(1)).save(argument.capture());
-        assertEquals("Checking id", "id", argument.getValue().getId());
-        assertEquals("Checking token", "encodedToken", argument.getValue().getSecretToken());
+        assertThrows(IllegalArgumentException.class, () -> {
+            applicationService.saveApplication(applicationDTO);
+        });
     }
 
     @Test

@@ -2,11 +2,14 @@ package com.example.secretmanager.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.UUID;
 
 @Entity
 public class Application {
     @Id
     private String id;
+
+    private String name;
 
     private String secretToken;
 
@@ -15,10 +18,15 @@ public class Application {
 
     public Application() {
         this.allowedSecrets = "";
+        this.id = UUID.randomUUID().toString();
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setSecretToken(String secretToken) {
@@ -31,6 +39,10 @@ public class Application {
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getSecretToken() {

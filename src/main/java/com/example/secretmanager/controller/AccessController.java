@@ -27,6 +27,6 @@ public class AccessController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<>("Access successfully updated", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
