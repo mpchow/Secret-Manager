@@ -1,7 +1,15 @@
 # Secret Manager
-HTTP Spring Boot service to handle secret management. Administrators can register applications, secrets, and decide which applications can access which secrets. An application can access a permitted secret through Basic Auth with the shared token given by the Administrator.   
+HTTP Spring Boot service built with Gradle to handle secret management. Administrators can register applications, secrets, and decide which applications can access which secrets. An application can access a permitted secret through Basic Auth with the shared token given by the Administrator.   
 
 ## How to run
+**Preinstallation**  
+Secret Manager is built on Spring Boot 2.7.4 and Java 17.  
+Steps to install the latest versions can be found below.   
+[Gradle installation](https://gradle.org/install/)   
+[Java installation](https://www.oracle.com/java/technologies/downloads/)
+
+1. Clone the repository
+2. Run `./gradle bootRun` in the top level directory
 
 ## API Specification
 ### /application
@@ -52,5 +60,6 @@ Body:
 }
 ```
 
-
+## Further Information
+You can find further design information under `/docs`
 
