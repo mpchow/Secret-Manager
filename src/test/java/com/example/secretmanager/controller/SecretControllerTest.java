@@ -1,5 +1,6 @@
 package com.example.secretmanager.controller;
 
+import com.example.secretmanager.dto.ApplicationDTO;
 import com.example.secretmanager.dto.SecretDTO;
 import com.example.secretmanager.service.ApplicationService;
 import com.example.secretmanager.service.SecretService;
@@ -14,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 
 import static org.hamcrest.Matchers.emptyString;
@@ -37,6 +40,8 @@ public class SecretControllerTest {
 
     @Test
     public void testPostSuccessfulRequest() throws Exception {
+        doNothing().when(secretService).newSecret(any(SecretDTO.class));
+
         mvc.perform(MockMvcRequestBuilders.post("/secret")
             .content(new ObjectMapper().writeValueAsString(new SecretDTO("secretId", "secretVal")))
             .contentType(MediaType.APPLICATION_JSON)
@@ -47,6 +52,8 @@ public class SecretControllerTest {
 
     @Test
     public void testPostMalformedInput() throws Exception {
+        doNothing().when(secretService).newSecret(any(SecretDTO.class));
+
         mvc.perform(MockMvcRequestBuilders.post("/secret")
             .content(new ObjectMapper().writeValueAsString(new SecretDTO(null, "secretVal")))
             .contentType(MediaType.APPLICATION_JSON)
